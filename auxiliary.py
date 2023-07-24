@@ -1,9 +1,51 @@
+import os
 import numpy as np
 import math
 import matplotlib as mpl
 from typing import TypedDict
 import matplotlib.pyplot as plt
+import owncloud
+import datetime
 from cmath import rect
+
+
+def local_copy_from_switch():
+    """
+    @summary Copy data into local directory.
+    """
+    if not os.path.exists("./figures/"):
+        os.mkdir("./figures/")
+    if not os.path.exists("./data/"):
+        os.mkdir("./data/")
+    if not os.path.exists("./data/Data_Chappelle_10Weeks/"):
+        os.mkdir("./data/Data_Chappelle_10Weeks/")
+    messages = []
+    public_link = "https://drive.switch.ch/index.php/s/pZyHw0lQjW4OAXY"
+    pwd = "12345"
+    existing_files = os.listdir("./data/")
+    oc = owncloud.Client.from_public_link(public_link, folder_password=pwd)
+    for file in oc.list(''):
+        if file.file_type != "dir":
+            file_local_path = os.path.join("./data/", file.name)
+            if file.name in existing_files:
+                if file.get_last_modified() > datetime.datetime.fromtimestamp(os.path.getmtime(file_local_path)):
+                    oc.get_file(file.path, file_local_path)
+                    pass
+            else:
+                oc.get_file(file.path, file_local_path)
+    existing_files = os.listdir("./data/Data_Chappelle_10Weeks/")
+    public_link = "https://drive.switch.ch/index.php/s/nnw639B12WRZeqR"
+    pwd = "12345"
+    oc = owncloud.Client.from_public_link(public_link, folder_password=pwd)
+    for file in oc.list(''):
+        if file.file_type != "dir":
+            file_local_path = os.path.join("./data/Data_Chappelle_10Weeks/", file.name)
+            if file.name in existing_files:
+                if file.get_last_modified() > datetime.datetime.fromtimestamp(os.path.getmtime(file_local_path)):
+                    oc.get_file(file.path, file_local_path)
+                    pass
+            else:
+                oc.get_file(file.path, file_local_path)
 
 
 def set_box_color(bp, color):
